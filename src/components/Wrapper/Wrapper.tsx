@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import block from 'bem-cn-lite';
-import {Button, Icon, Theme, ThemeProvider} from '@gravity-ui/uikit';
+import {Button, Icon, type Theme, ThemeProvider} from '@gravity-ui/uikit';
 import {Moon, Sun} from '@gravity-ui/icons';
 
 import './Wrapper.scss';
@@ -27,22 +28,42 @@ export const Wrapper: React.FC<AppProps> = ({children}) => {
     return (
         <ThemeProvider theme={theme}>
             <div className={b()}>
-                <div className={b('theme-button')}>
-                    <Button
-                        size="l"
-                        view="outlined"
-                        onClick={() => {
-                            setTheme(isDark ? LIGHT : DARK);
-                        }}
-                    >
-                        <Icon data={isDark ? Sun : Moon} />
-                    </Button>
-                </div>
                 <div className={b('layout')}>
                     <div className={b('header')}>
                         <div className={b('logo')}>
-                            <div className={b('gravity-logo', {dark: isDark})} />
-                            <div className={b('next-logo', {dark: isDark})} />
+                            <Link href="/">
+                                <Button size="l" view="outlined">
+                                    Главная
+                                </Button>
+                            </Link>
+
+                            <Link href="/ingredients">
+                                <Button size="l" view="outlined">
+                                    Ингредиенты
+                                </Button>
+                            </Link>
+
+                            <Link href="/recipes">
+                                <Button size="l" view="outlined">
+                                    Рецепты
+                                </Button>
+                            </Link>
+
+                            <Link href="/menu">
+                                <Button size="l" view="outlined">
+                                    Меню
+                                </Button>
+                            </Link>
+
+                            <Button
+                                size="l"
+                                view="outlined"
+                                onClick={() => {
+                                    setTheme(isDark ? LIGHT : DARK);
+                                }}
+                            >
+                                <Icon data={isDark ? Sun : Moon} />
+                            </Button>
                         </div>
                     </div>
                     <div className={b('content')}>{children}</div>

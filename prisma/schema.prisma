@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Meal {
+  BREAKFAST
+  LUNCH
+  DINNER
+}
+
+enum RecipeCategory {
+  BREAKFAST
+  SALAD
+  MONO
+  VEGAN
+  FIRSTCOURSE
+  SECONDCOURSE
+  DESSERT
+  GARNISH
+  BAKERY
+  SNACK
+  DRINK
+  SAUCE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Ingredients {
+  ingredientId Int                   @id @default(autoincrement())
+  title        String                @db.VarChar(255)
+  measure      String                @db.VarChar(255)
+  recipes      IngredientInRecipes[]
+}
+
+model IngredientInRecipes {
+  ingredientId Int
+  recipeId     Int
+  ingredient   Ingredients @relation(fields: [ingredientId], references: [ingredientId], onDelete: NoAction, onUpdate: NoAction)
+  recipe       Recipes     @relation(fields: [recipeId], references: [recipeId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([ingredientId, recipeId], map: "ingredient_id_recipe_id_unique")
+}
+
+model Recipes {
+  recipeId    Int                   @id @default(autoincrement())
+  title       String                @db.VarChar(255)
+  difficulty  Difficulty            @default(EASY)
+  portion     Float                 @default(1.0)
+  meal        Meal[]
+  category    RecipeCategory[]
+  ingredients IngredientInRecipes[]
+}

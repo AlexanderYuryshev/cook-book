@@ -1,5 +1,5 @@
-import {InfoButtons} from '../components/InfoButtons';
+import {Text} from '@gravity-ui/uikit';
 
 export default function Home() {
-    return <InfoButtons />;
+    return <Text>Главная</Text>;
 }
