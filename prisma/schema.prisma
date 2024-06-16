@@ -11,21 +11,36 @@ enum Meal {
   BREAKFAST
   LUNCH
   DINNER
+  SNACK
 }
 
-enum RecipeCategory {
-  BREAKFAST
-  SALAD
-  MONO
-  VEGAN
-  FIRSTCOURSE
-  SECONDCOURSE
-  DESSERT
-  GARNISH
-  BAKERY
-  SNACK
-  DRINK
-  SAUCE
+enum Measure {
+  PIECE
+  GRAM
+  KILOGRAM
+  LITER
+  MILLILITER
+  TEASPOON
+  TABLESPOON
+  CUP
+  PINCH
+}
+
+model Categories {
+  categoryId Int                   @id @default(autoincrement())
+  code       String
+  title      String
+  recipes    CategoriesInRecipes[]
+  recipeId   Int?
+}
+
+model CategoriesInRecipes {
+  categoryId Int
+  recipeId   Int
+  category   Categories @relation(fields: [categoryId], references: [categoryId], onDelete: NoAction, onUpdate: NoAction)
+  recipe     Recipes    @relation(fields: [recipeId], references: [recipeId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([categoryId, recipeId], map: "category_id_recipe_id_unique")
 }
 
 enum Difficulty {
@@ -35,15 +50,20 @@ enum Difficulty {
 }
 
 model Ingredients {
-  ingredientId Int                   @id @default(autoincrement())
-  title        String                @db.VarChar(255)
-  measure      String                @db.VarChar(255)
-  recipes      IngredientInRecipes[]
+  ingredientId  Int                   @id @default(autoincrement())
+  title         String                @db.VarChar(255)
+  measure       Measure
+  calories      Float
+  fat           Float
+  protein       Float
+  carbohydrates Float
+  recipes       IngredientInRecipes[]
 }
 
 model IngredientInRecipes {
   ingredientId Int
   recipeId     Int
+  amount       Float
   ingredient   Ingredients @relation(fields: [ingredientId], references: [ingredientId], onDelete: NoAction, onUpdate: NoAction)
   recipe       Recipes     @relation(fields: [recipeId], references: [recipeId], onDelete: NoAction, onUpdate: NoAction)
 
@@ -53,9 +73,11 @@ model IngredientInRecipes {
 model Recipes {
   recipeId    Int                   @id @default(autoincrement())
   title       String                @db.VarChar(255)
+  cookingTime Float                 @default(20)
   difficulty  Difficulty            @default(EASY)
   portion     Float                 @default(1.0)
+  image       String?
   meal        Meal[]
-  category    RecipeCategory[]
+  categories  CategoriesInRecipes[]
   ingredients IngredientInRecipes[]
 }

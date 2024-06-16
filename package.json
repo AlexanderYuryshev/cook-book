@@ -7,18 +7,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "db": "npx prisma db push",
+    "db": "npx prisma migrate reset --skip-seed && npx prisma db push && npx prisma db seed",
     "lint:js": "eslint --ext .js,.jsx,.ts,.tsx .",
     "lint:styles": "stylelint '{styles,src}/**/*.scss'",
     "lint:prettier": "prettier --check '**/*.md'",
-    "lint": "npm run lint:js && npm run lint:styles && npm run lint:prettier",
-    "postinstall": "prisma generate"
+    "lint": "npm run lint:js && npm run lint:styles && npm run lint:prettier"
   },
   "dependencies": {
-    "@gravity-ui/icons": "^2.6.0",
-    "@gravity-ui/uikit": "^5.17.0",
+    "@gravity-ui/icons": "^2.10.0",
+    "@gravity-ui/uikit": "^6.17.0",
     "@prisma/client": "^5.15.0",
     "bem-cn-lite": "^4.1.0",
+    "csvtojson": "^2.0.10",
     "next": "^14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -30,7 +30,7 @@
     "@gravity-ui/stylelint-config": "^4.0.0",
     "@gravity-ui/tsconfig": "^1.0.0",
     "@svgr/webpack": "^8.1.0",
-    "@types/node": "^20.7.0",
+    "@types/node": "^20.14.2",
     "@types/react": "^18.2.23",
     "@types/react-dom": "^18.2.8",
     "eslint": "^8.50.0",
@@ -42,7 +42,11 @@
     "sass": "^1.68.0",
     "sass-loader": "^13.3.2",
     "stylelint": "^15.10.3",
-    "typescript": "^5.2.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed.ts"
   },
   "engines": {
     "node": ">=18"

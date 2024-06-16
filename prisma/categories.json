@@ -1,0 +1,14 @@
+[
+    { "title": "Завтрак", "code": "BREAKFAST"},
+    { "title": "Салат", "code": "SALAD"},
+    { "title": "Моно", "code": "MONO"},
+    { "title": "Веган", "code": "VEGAN"},
+    { "title": "Первое", "code": "FIRSTCOURSE"},
+    { "title": "Второе", "code": "SECONDCOURSE"},
+    { "title": "Десерт", "code": "DESSERT"},
+    { "title": "Гарнир", "code": "GARNISH"},
+    { "title": "Выпечка", "code": "BAKERY"},
+    { "title": "Снэк", "code": "SNACK"},
+    { "title": "Напиток", "code": "DRINK"},
+    { "title": "Соус", "code": "SAUCE"}
+]

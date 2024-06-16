@@ -14,6 +14,7 @@ export const getRecipes = async () => {
     const data = await prisma.recipes.findMany({
         include: {
             ingredients: {include: {ingredient: true}},
+            categories: {include: {category: true}},
         },
     });
     return data;
