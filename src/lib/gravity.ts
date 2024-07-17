@@ -1,2 +1,14 @@
 'use client';
-export {Flex, Table, Label, Button, Modal} from '@gravity-ui/uikit';
+export {
+    Flex,
+    Link,
+    Loader,
+    Table,
+    Label,
+    Button,
+    Modal,
+    Select,
+    Text,
+    TextArea,
+    TextInput,
+} from '@gravity-ui/uikit';
