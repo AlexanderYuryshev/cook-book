@@ -1,5 +1,5 @@
-import {RecipeForm} from './form';
 import {getCategories, getIngredients, getRecipe} from '@/actions/actions';
+import {RecipeForm} from './form';
 
 interface Props {
     params: {

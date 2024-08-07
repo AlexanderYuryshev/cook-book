@@ -1,6 +1,7 @@
 import {Flex, Label, Link} from '@/lib/gravity';
 import {translateDifficulty, translateMeal} from '@/lib/translation';
-import type {CategoriesData, IngredientsData, RecipesData} from './models';
+import type {RecipesData} from './models';
+import type {SelectOptions} from '@gravity-ui/uikit';
 
 export const convertRecipesDataToTableData = (data: RecipesData) =>
     data.map((item) => ({
@@ -36,8 +37,10 @@ export const convertRecipesDataToTableData = (data: RecipesData) =>
         ),
     }));
 
-export const getCategoriesOptions = (data?: CategoriesData) =>
-    data?.map((item) => ({value: String(item.categoryId), content: item.title}));
-
-export const getIngredientsOptions = (data?: IngredientsData) =>
-    data?.map((item) => ({value: String(item.ingredientId), content: item.title}));
+export const getEntitySelectOptions = <T extends Array<Record<string, unknown>>>(
+    data?: T,
+    titleField = 'title',
+    valueField = 'id',
+): SelectOptions =>
+    data?.map((item) => ({value: String(item[valueField]), content: item[titleField] as string})) ??
+    [];

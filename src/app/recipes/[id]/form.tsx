@@ -1,20 +1,20 @@
 'use client';
-import React, {useCallback, useMemo, useState} from 'react';
-import {Select, TextInput} from '@/lib/gravity';
+import React, {useMemo, useTransition} from 'react';
+import {Controller, useForm} from 'react-hook-form';
+import {useRouter} from 'next/navigation';
+import block from 'bem-cn-lite';
+import {Flex, Select, TextInput} from '@/lib/gravity';
+import {getEntitySelectOptions} from '@/app/utils';
 import {
     type CategoriesData,
     type IngredientsData,
-    type RecipeData,
+    type RecipeFormData,
+    type RecipeNotNullData,
     difficultyOptions,
     mealOptions,
 } from '../../models';
-import {getCategoriesOptions, getIngredientsOptions} from '@/app/utils';
-
-type RecipeNotNullData = Exclude<RecipeData, null>;
-
-type RecipePrimitiveFields = Omit<RecipeNotNullData, 'categories' | 'ingredients' | 'meal'>;
-
-type RecipeArrayFields = Pick<RecipeNotNullData, 'categories' | 'ingredients' | 'meal'>;
+import {convertToRecipeFormData, submitRecipeForm} from './utils';
+import './recipe.scss';
 
 interface Props {
     recipeData: RecipeNotNullData;
@@ -22,88 +22,121 @@ interface Props {
     categories?: CategoriesData;
 }
 
+const b = block('recipe');
+
 export const RecipeForm = ({recipeData, categories, ingredients}: Props) => {
-    const [data, setData] = useState<Partial<RecipeNotNullData>>(recipeData);
-
-    const categoriesOptions = useMemo(() => getCategoriesOptions(categories), [categories]);
-    const ingredientsOptions = useMemo(() => getIngredientsOptions(ingredients), [ingredients]);
-
-    const handleTextChange = useCallback(
-        (fieldName: keyof RecipePrimitiveFields) => (e: React.ChangeEvent<HTMLInputElement>) =>
-            setData(
-                data
-                    ? {...data, [fieldName]: e.currentTarget.value}
-                    : {[fieldName]: e.currentTarget.value},
-            ),
-        [data],
+    const router = useRouter();
+    const {control, handleSubmit, watch, getValues} = useForm<RecipeFormData>({
+        defaultValues: convertToRecipeFormData(recipeData),
+    });
+    const [isPending, startTransition] = useTransition();
+    const watchIngredients = watch('ingredients');
+    const categoriesOptions = getEntitySelectOptions(categories, 'title', 'categoryId');
+    const ingredientsOptions = getEntitySelectOptions(ingredients, 'title', 'ingredientId');
+    const ingredientsField = useMemo(
+        () =>
+            ingredients
+                ?.filter((ingr) => getValues().ingredients?.includes(String(ingr.ingredientId)))
+                .map((ingr) => (
+                    <Flex direction="row" key={ingr.ingredientId}>
+                        <TextInput value={ingr.title}></TextInput>
+                        {/* <TextInput type="number" value={String(ingr.amount)}></TextInput> */}
+                    </Flex>
+                )),
+        [watchIngredients],
     );
 
-    const handleArrayChange = useCallback(
-        (fieldName: keyof RecipeArrayFields) => (value: string[] | undefined) =>
-            setData(data ? {...data, [fieldName]: value} : {[fieldName]: value}),
-        [data],
-    );
+    const onSubmit = handleSubmit((data: RecipeFormData) => {
+        startTransition(() => {
+            submitRecipeForm(data);
+        });
+        router.push('/recipes');
+    });
 
     return (
-        <>
-            <TextInput
-                value={data?.title}
-                label="Название"
-                type="text"
-                onChange={handleTextChange('title')}
-            />
-            <TextInput
-                value={String(data?.cookingTime)}
-                label="Время приготовления"
-                type="number"
-                onChange={handleTextChange('cookingTime')}
-            />
-            <TextInput
-                value={String(data?.portion)}
-                label="Количество порций"
-                type="number"
-                onChange={handleTextChange('portion')}
-            />
-            <Select
-                label="Прием пищи"
-                value={data.meal ?? undefined}
-                options={mealOptions}
-                onUpdate={handleArrayChange('meal')}
-                multiple
-            />
-            <Select
-                label="Сложность"
-                value={data.difficulty ? [data.difficulty] : undefined}
-                options={difficultyOptions}
-            />
-            <Select
-                label="Категории"
-                value={categoriesOptions
-                    ?.filter(
-                        (item) =>
-                            data.categories
-                                ?.map((category) => category.categoryId)
-                                .includes(Number(item.value)),
-                    )
-                    .map((item) => item.value)}
-                options={categoriesOptions}
-                onUpdate={handleArrayChange('categories')}
-                multiple
-            />
-            <Select
-                label="Ингредиенты"
-                value={ingredientsOptions
-                    ?.filter(
-                        (item) =>
-                            data.ingredients
-                                ?.map((ingredient) => ingredient.ingredientId)
-                                .includes(Number(item.value)),
-                    )
-                    .map((item) => item.value)}
-                options={ingredientsOptions}
-                onUpdate={handleArrayChange('ingredients')}
-                multiple
-            />
-        </>
+        <form onSubmit={onSubmit}>
+            <div className={b()}>
+                <Controller
+                    name="title"
+                    control={control}
+                    render={({field}) => <TextInput label="Название" type="text" {...field} />}
+                />
+                <Controller
+                    name="cookingTime"
+                    control={control}
+                    render={({field}) => (
+                        <TextInput label="Время приготовления" type="number" {...field} />
+                    )}
+                />
+                <Controller
+                    name="portion"
+                    control={control}
+                    render={({field}) => (
+                        <TextInput label="Количество порций" type="number" {...field} />
+                    )}
+                />
+                <Controller
+                    name="meal"
+                    control={control}
+                    render={({field}) => (
+                        <Select
+                            label="Прием пищи"
+                            options={mealOptions}
+                            multiple
+                            onUpdate={field.onChange}
+                            {...field}
+                        />
+                    )}
+                />
+                <Controller
+                    name="difficulty"
+                    control={control}
+                    render={({field}) => (
+                        <Select
+                            label="Сложность"
+                            options={difficultyOptions}
+                            {...field}
+                            value={[
+                                // Нестрогое сравнение, так как строгое не дает равенства строки и перечисления
+                                difficultyOptions.find((dif) => dif.value == field.value)
+                                    ?.content ?? '',
+                            ]}
+                            onUpdate={field.onChange}
+                        />
+                    )}
+                />
+                <Controller
+                    name="categories"
+                    control={control}
+                    render={({field}) => (
+                        <Select
+                            label="Категории"
+                            options={categoriesOptions}
+                            onUpdate={field.onChange}
+                            multiple
+                            {...field}
+                        />
+                    )}
+                />
+                <Controller
+                    name="ingredients"
+                    control={control}
+                    render={({field}) => (
+                        <Select
+                            label="Ингредиенты"
+                            options={ingredientsOptions}
+                            onUpdate={field.onChange}
+                            multiple
+                            {...field}
+                        />
+                    )}
+                />
+                <div></div>
+                <div style={{flexDirection: 'column'}}>{ingredientsField}</div>
+            </div>
+            <button type="submit" disabled={isPending}>
+                Сохранить
+            </button>
+        </form>
     );
 };

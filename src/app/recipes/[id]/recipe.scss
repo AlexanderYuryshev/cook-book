@@ -1,0 +1,10 @@
+$block: '.recipe';
+
+#{$block} {
+    display: grid;
+    min-height: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+}
